@@ -22,6 +22,8 @@ class User {
     }
 }
 
-User.signIn('e', 'x')
-.then(() => console.log('Dang nhap thanh cong'))
-.catch(err => console.log(err.message));
+module.exports = User;
+
+// User.signIn('e', 'x')
+// .then(() => console.log('Dang nhap thanh cong'))
+// .catch(err => console.log(err.message));
