@@ -3,9 +3,6 @@ const queryDb = require('./db');
 
 class User {
     static async signIn(email, rawPassword) {
-        // b1: truy van lay ra email, passwordEnc
-        // b2: compare
-        // Neu ma dang nhap that bai -> catch
         const selectSql = 'SELECT * FROM "User" WHERE email = $1';
         const result = await queryDb(selectSql, [email]);
         if (!result.rows[0]) throw new Error('Email khong ton tai');
@@ -23,7 +20,3 @@ class User {
 }
 
 module.exports = User;
-
-// User.signIn('e', 'x')
-// .then(() => console.log('Dang nhap thanh cong'))
-// .catch(err => console.log(err.message));
