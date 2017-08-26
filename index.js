@@ -12,30 +12,39 @@ app.use(session({
     saveUninitialized: true,
     secret: 'jkqhf9e8qf8',
     cookie: {
-        maxAge: 5000
+        maxAge: 500000
     }
 }));
+
+const requireLogin = (req, res, next) => {
+    if (!req.session.daDangNhap) return res.redirect('/dangnhap');
+    next();
+};
+
+const redirectIfLoggedIn = (req, res, next) => {
+    if (req.session.daDangNhap) return res.redirect('/private');
+    next();
+};
 
 app.get('/', (req, res) => res.render('home'));
 
 // Ai da dang nhap thanh
 // Redirect toi /dangnhap
-app.get('/private', (req, res) => {
-    if (!req.session.daDangNhap) return res.redirect('/dangnhap');
+app.get('/private', requireLogin, (req, res) => {
     res.send('Manage your account');
 });
 
-app.get('/dangky', (req, res) => res.render('dangky'));
-app.get('/dangnhap', (req, res) => res.render('dangnhap'));
+app.get('/dangky', redirectIfLoggedIn, (req, res) => res.render('dangky'));
+app.get('/dangnhap', redirectIfLoggedIn, (req, res) => res.render('dangnhap'));
 
-app.post('/dangky', parser, (req, res) => {
+app.post('/dangky', redirectIfLoggedIn, parser, (req, res) => {
     const { email, password, name, phone } = req.body;
     User.signUp(email, password, name, phone)
     .then(() => res.send('Dang ky thanh cong'))
     .catch(err => res.send(err.message));
 });
 
-app.post('/dangnhap', parser, (req, res) => {
+app.post('/dangnhap', redirectIfLoggedIn, parser, (req, res) => {
     const { email, password } = req.body;
     User.signIn(email, password)
     .then(() => {
