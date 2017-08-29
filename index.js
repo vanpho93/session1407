@@ -55,3 +55,8 @@ app.post('/dangnhap', redirectIfLoggedIn, parser, (req, res) => {
 });
 
 app.listen(3000, () => console.log('Server started!'));
+
+// Voi cach su dung session -> [{ id: duLieu: }]
+// Luu du lieu vao cookie daDangNhap: true
+// Bam daDangNhap: true -> jwt
+//jwt.io
