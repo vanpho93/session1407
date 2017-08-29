@@ -14,17 +14,35 @@ app.set('views', './views');
 
 app.get('/', (req, res) => res.render('home'));
 
-app.get('/private', (req, res) => {
+const refreshToken = (req, res, next) => {
     const { token } = req.cookies;
     if (!token) return res.redirect('/dangnhap');
     verify(token, SK, (err, obj) => {
         if (err) return res.redirect('/dangnhap');
-        res.send(obj);
+        const { email, phone, name } = obj;
+        sign({ email, phone, name }, SK, { expiresIn: 10 }, (errSign, token) => {
+            res.cookie('token', token);
+            req.userInfo = { email, phone, name };
+            next();
+        });
     }) ;
+}
+
+const redirectIfLoggedIn = (req, res, next) => {
+    const { token } = req.cookies;
+    if (!token) return next();
+    verify(token, SK, (err, obj) => {
+        if (err) return next();
+        res.redirect('/private');
+    }) ;
+};
+
+app.get('/private', refreshToken, (req, res) => {
+    res.send(req.userInfo);
 });
 
-app.get('/dangky', (req, res) => res.render('dangky'));
-app.get('/dangnhap', (req, res) => res.render('dangnhap'));
+app.get('/dangky', redirectIfLoggedIn, (req, res) => res.render('dangky'));
+app.get('/dangnhap', redirectIfLoggedIn, (req, res) => res.render('dangnhap'));
 
 app.post('/dangky', parser, (req, res) => {
     const { email, password, name, phone } = req.body;
@@ -37,7 +55,7 @@ app.post('/dangnhap', parser, (req, res) => {
     const { email, password } = req.body;
     User.signIn(email, password)
     .then(userInfo => {
-        sign(userInfo, SK, (err, token) => {
+        sign(userInfo, SK, { expiresIn: 10 }, (err, token) => {
             res.cookie('token', token);
             res.send('Dang nhap thanh cong');
         });
