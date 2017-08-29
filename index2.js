@@ -50,3 +50,7 @@ app.listen(3000, () => console.log('Server started!'));
 // Chua dang nhap ma trong /private -> redirect toi /dangnhap
 // Dang nhap roi ma vao /dangnhap /dangky redirect /private
 // Private Hien thi thong tin cua user -> ko truy van db -> Luu trong token
+
+// Refresh token
+// Set thoi gian song cho token
+// Viet thanh middleware 
