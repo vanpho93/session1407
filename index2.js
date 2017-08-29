@@ -1,15 +1,26 @@
 const express = require('express');
 const parser = require('body-parser').urlencoded({ extended: false });
+const { sign, verify } = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const SK = 'k3h2f98afyqfqsdf';
 const User = require('./User');
 
 const app = express();
+
+app.use(cookieParser());
+
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
 app.get('/', (req, res) => res.render('home'));
 
 app.get('/private', (req, res) => {
-    res.send('Manage your account');
+    const { token } = req.cookies;
+    if (!token) return res.redirect('/dangnhap');
+    verify(token, SK, (err, obj) => {
+        if (err) return res.redirect('/dangnhap');
+        res.send(obj);
+    }) ;
 });
 
 app.get('/dangky', (req, res) => res.render('dangky'));
@@ -25,7 +36,12 @@ app.post('/dangky', parser, (req, res) => {
 app.post('/dangnhap', parser, (req, res) => {
     const { email, password } = req.body;
     User.signIn(email, password)
-    .then(() => res.send('Dang nhap thanh cong'))
+    .then(userInfo => {
+        sign(userInfo, SK, (err, token) => {
+            res.cookie('token', token);
+            res.send('Dang nhap thanh cong');
+        });
+    })
     .catch(err => res.send(err.message));
 });
 

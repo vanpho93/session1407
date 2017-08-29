@@ -6,10 +6,10 @@ class User {
         const selectSql = 'SELECT * FROM "User" WHERE email = $1';
         const result = await queryDb(selectSql, [email]);
         if (!result.rows[0]) throw new Error('Email khong ton tai');
-        const { password } = result.rows[0];
+        const { password, name, phone } = result.rows[0];
         const same = await compare(rawPassword, password);
         if (!same) throw new Error('Sai password');
-        return;
+        return { email, name, phone };
     }
 
     static async signUp(email, password, name, phone) {
